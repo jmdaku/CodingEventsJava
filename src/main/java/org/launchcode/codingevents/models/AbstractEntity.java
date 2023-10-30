@@ -8,16 +8,16 @@ import jakarta.persistence.MappedSuperclass;
 import java.util.Objects;
 
 @MappedSuperclass
+//fields need to be available to tables
 public abstract class AbstractEntity {
 
     @Id
     @GeneratedValue
     private int id;
 
-        public int getId() {
+    public int getId() {
         return id;
     }
-
 
     @Override
     public boolean equals(Object o) {
