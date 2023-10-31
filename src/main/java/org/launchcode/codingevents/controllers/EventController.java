@@ -3,8 +3,10 @@ package org.launchcode.codingevents.controllers;
 import jakarta.validation.Valid;
 import org.launchcode.codingevents.data.EventCategoryRepository;
 import org.launchcode.codingevents.data.EventRepository;
+import org.launchcode.codingevents.data.TagRepository;
 import org.launchcode.codingevents.models.Event;
 import org.launchcode.codingevents.models.EventCategory;
+import org.launchcode.codingevents.models.Tag;
 import org.launchcode.codingevents.models.dto.EventTagDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,9 @@ public class EventController {
 
     @Autowired
     private EventCategoryRepository eventCategoryRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
 
     @GetMapping
     public String displayEvents(@RequestParam(required = false) Integer categoryId, Model model) {
@@ -97,6 +102,7 @@ public class EventController {
             Event event = result.get();
             model.addAttribute("title", event.getName() + " Details");
             model.addAttribute("event", event);
+            model.addAttribute("tags", event.getName());
         }
 
         return "events/detail";
@@ -113,5 +119,22 @@ public class EventController {
         return "events/add-tag.html";
     }
 
+    @PostMapping("add-tag")
+    public String processAddTagForm(@ModelAttribute @Valid EventTagDTO eventTag,
+                                    Errors errors,
+                                    Model model){
+
+        if (!errors.hasErrors()) {
+            Event event = eventTag.getEvent();
+            Tag tag = eventTag.getTag();
+            if (!event.getTags().contains(tag)){
+                event.addTag(tag);
+                eventRepository.save(event);
+            }
+            return "redirect:detail?eventId=" + event.getId();
+        }
+
+        return "redirect:add-tag";
+    }
 
 }
